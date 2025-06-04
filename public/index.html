@@ -1,39 +1,260 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Sammar Is a odd Guy</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
-    #answers { margin-top: 20px; }
-    #readySection { margin-top: 20px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sammar Is a odd Guy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #121212;
+    color: #e6e6e6;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  #container {
+    width: 100%;
+    max-width: 480px;
+    background: #181818;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.7);
+    padding: 30px 30px 40px;
+  }
+  h1 {
+    margin: 0 0 24px;
+    font-weight: 600;
+    font-size: 2rem;
+    text-align: center;
+    letter-spacing: 0.06em;
+    color: #1db954; /* Spotify green */
+  }
+
+  /* Login */
+  #login {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  #nameInput {
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    background: #282828;
+    color: #fff;
+    transition: background 0.3s ease;
+  }
+  #nameInput::placeholder {
+    color: #b3b3b3;
+  }
+  #nameInput:focus {
+    outline: none;
+    background: #333;
+  }
+  #joinBtn {
+    background: #1db954;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.3s ease;
+    box-shadow: 0 4px 12px rgb(29 185 84 / 0.5);
+  }
+  #joinBtn:hover {
+    background: #17a74a;
+  }
+
+  /* Game */
+  #game {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h3 {
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #282828;
+    padding-bottom: 6px;
+    margin: 0;
+    color: #1db954;
+  }
+  #question {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 6px 0 12px;
+    min-height: 48px;
+    color: #fff;
+  }
+
+  /* Inputs and buttons */
+  #answerInput {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #282828;
+    color: #fff;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+  }
+  #answerInput::placeholder {
+    color: #b3b3b3;
+  }
+  #answerInput:focus {
+    outline: none;
+    background: #333;
+  }
+
+  #submitAnswer {
+    margin-top: 8px;
+    background: #1db954;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 12px rgb(29 185 84 / 0.5);
+  }
+  #submitAnswer:hover:not(:disabled) {
+    background: #17a74a;
+  }
+  #submitAnswer:disabled {
+    background: #444;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  /* Ready section */
+  #readySection {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  #readyButton {
+    background: #1db954;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.3s ease;
+    box-shadow: 0 4px 12px rgb(29 185 84 / 0.5);
+  }
+  #readyButton:hover:not(:disabled) {
+    background: #17a74a;
+  }
+  #readyButton:disabled {
+    background: #444;
+    cursor: default;
+    box-shadow: none;
+  }
+  #readyStatus {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    text-align: center;
+  }
+
+  /* Lists */
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    border-radius: 8px;
+    background: #282828;
+    box-shadow: inset 0 0 8px rgb(0 0 0 / 0.7);
+  }
+  ul li {
+    padding: 10px 16px;
+    border-bottom: 1px solid #3a3a3a;
+    color: #eee;
+    font-weight: 500;
+    cursor: default;
+  }
+  ul li:last-child {
+    border-bottom: none;
+  }
+
+  /* Reveal area */
+  #revealArea {
+    color: #e50914; /* Netflix red */
+    font-weight: 600;
+    font-size: 1.1rem;
+    min-height: 36px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  /* Scrollbar for lists */
+  ul::-webkit-scrollbar {
+    width: 8px;
+  }
+  ul::-webkit-scrollbar-thumb {
+    background: #1db954;
+    border-radius: 4px;
+  }
+  ul::-webkit-scrollbar-track {
+    background: #202020;
+  }
+
+  /* Responsive */
+  @media (max-width: 500px) {
+    #container {
+      padding: 20px 16px 30px;
+    }
+  }
+</style>
 </head>
 <body>
-  <h1>Sammar Is a odd Guy</h1>
-  <div id="login">
-    <input type="text" id="nameInput" placeholder="Enter your name" />
-    <button id="joinBtn">Join Game</button>
-  </div>
-
-  <div id="game" style="display:none;">
-    <h3>Your Question:</h3>
-    <p id="question"></p>
-
-    <input type="text" id="answerInput" placeholder="Your answer" />
-    <button id="submitAnswer">Submit Answer</button>
-
-    <div id="readySection">
-      <button id="readyButton">Ready</button>
-      <p id="readyStatus">Press Ready when you're ready to reveal the question.</p>
+  <div id="container">
+    <h1>Sammar Is a odd Guy</h1>
+    <div id="login">
+      <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off" />
+      <button id="joinBtn">Join Game</button>
     </div>
 
-    <h3>Players:</h3>
-    <ul id="playerList"></ul>
+    <div id="game">
+      <h3>Your Question:</h3>
+      <p id="question"></p>
 
-    <h3>Answers:</h3>
-    <ul id="answers"></ul>
+      <input type="text" id="answerInput" placeholder="Your answer" autocomplete="off" />
+      <button id="submitAnswer">Submit Answer</button>
 
-    <h3 id="revealArea" style="color: darkred; margin-top: 20px;"></h3>
+      <div id="readySection">
+        <button id="readyButton">Ready</button>
+        <p id="readyStatus">Press Ready when you're ready to reveal the question.</p>
+      </div>
+
+      <h3>Players:</h3>
+      <ul id="playerList"></ul>
+
+      <h3>Answers:</h3>
+      <ul id="answers"></ul>
+
+      <h3 id="revealArea"></h3>
+    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -58,7 +279,7 @@
       if (!name) return alert('Enter your name');
       socket.emit('join', name);
       loginDiv.style.display = 'none';
-      gameDiv.style.display = 'block';
+      gameDiv.style.display = 'flex';
     };
 
     socket.on('question', (q) => {
@@ -93,19 +314,16 @@
       });
     });
 
-    // Handle Ready button click
     readyButton.onclick = () => {
       socket.emit('ready');
       readyButton.disabled = true;
       readyStatus.textContent = "You are ready! Waiting for others...";
     };
 
-    // Show how many players are ready
     socket.on('readyStatus', (readyIds) => {
       readyStatus.textContent = `Players ready: ${readyIds.length}`;
     });
 
-    // Reveal the normal question after 15s or when all ready
     socket.on('reveal', (normalQuestion) => {
       revealArea.textContent = `Normal question was: ${normalQuestion}`;
       readyStatus.textContent = 'Question revealed! Discuss now.';
@@ -114,5 +332,6 @@
   </script>
 </body>
 </html>
+
 
 
