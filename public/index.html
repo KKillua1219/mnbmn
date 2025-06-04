@@ -5,6 +5,7 @@
   <style>
     body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
     #answers { margin-top: 20px; }
+    #readySection { margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -21,16 +22,24 @@
     <input type="text" id="answerInput" placeholder="Your answer" />
     <button id="submitAnswer">Submit Answer</button>
 
+    <div id="readySection">
+      <button id="readyButton">Ready</button>
+      <p id="readyStatus">Press Ready when you're ready to reveal the question.</p>
+    </div>
+
     <h3>Players:</h3>
     <ul id="playerList"></ul>
 
     <h3>Answers:</h3>
     <ul id="answers"></ul>
+
+    <h3 id="revealArea" style="color: darkred; margin-top: 20px;"></h3>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
+
     const joinBtn = document.getElementById('joinBtn');
     const nameInput = document.getElementById('nameInput');
     const loginDiv = document.getElementById('login');
@@ -40,6 +49,9 @@
     const submitAnswerBtn = document.getElementById('submitAnswer');
     const playerList = document.getElementById('playerList');
     const answersList = document.getElementById('answers');
+    const readyButton = document.getElementById('readyButton');
+    const readyStatus = document.getElementById('readyStatus');
+    const revealArea = document.getElementById('revealArea');
 
     joinBtn.onclick = () => {
       const name = nameInput.value.trim();
@@ -51,6 +63,9 @@
 
     socket.on('question', (q) => {
       questionP.textContent = q;
+      revealArea.textContent = '';  // Clear reveal when new question arrives
+      readyButton.disabled = false;
+      readyStatus.textContent = "Press Ready when you're ready to reveal the question.";
     });
 
     socket.on('players', (players) => {
@@ -77,10 +92,25 @@
         answersList.appendChild(li);
       });
     });
+
+    // Handle Ready button click
+    readyButton.onclick = () => {
+      socket.emit('ready');
+      readyButton.disabled = true;
+      readyStatus.textContent = "You are ready! Waiting for others...";
+    };
+
+    // Show how many players are ready
+    socket.on('readyStatus', (readyIds) => {
+      readyStatus.textContent = `Players ready: ${readyIds.length}`;
+    });
+
+    // Reveal the normal question after 15s or when all ready
     socket.on('reveal', (normalQuestion) => {
-  console.log('Normal question revealed:', normalQuestion);
-  // Show this to all players in the UI
-});
+      revealArea.textContent = `Normal question was: ${normalQuestion}`;
+      readyStatus.textContent = 'Question revealed! Discuss now.';
+      readyButton.disabled = true;
+    });
   </script>
 </body>
 </html>
