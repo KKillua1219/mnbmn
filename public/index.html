@@ -156,4 +156,194 @@
   #readySection {
     margin-top: 12px;
     display: flex;
-    flex-di
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  #readyButton {
+    background: #4a90e2;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 15px rgb(74 144 226 / 0.4);
+  }
+  #readyButton:hover:not(:disabled) {
+    background-color: #357abd;
+    box-shadow: 0 8px 20px rgb(53 122 189 / 0.55);
+  }
+  #readyButton:disabled {
+    background-color: #444;
+    cursor: default;
+    box-shadow: none;
+  }
+  #readyStatus {
+    font-size: 0.9rem;
+    color: #8c8e9a;
+    text-align: center;
+  }
+
+  /* Lists */
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 180px;
+    overflow-y: auto;
+    border-radius: 10px;
+    background: #2c2e3a;
+    box-shadow: inset 0 0 14px rgb(0 0 0 / 0.7);
+  }
+  ul li {
+    padding: 14px 18px;
+    border-bottom: 1px solid #3a3b47;
+    color: #d0d2d9;
+    font-weight: 500;
+    cursor: default;
+    user-select: none;
+  }
+  ul li:last-child {
+    border-bottom: none;
+  }
+
+  /* Reveal area */
+  #revealArea {
+    color: #ef5350; /* Soft red */
+    font-weight: 600;
+    font-size: 1.15rem;
+    min-height: 40px;
+    text-align: center;
+    margin-top: 20px;
+    user-select: text;
+  }
+
+  /* Scrollbar for lists */
+  ul::-webkit-scrollbar {
+    width: 8px;
+  }
+  ul::-webkit-scrollbar-thumb {
+    background: #4a90e2;
+    border-radius: 4px;
+  }
+  ul::-webkit-scrollbar-track {
+    background: #20222a;
+  }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    #container {
+      padding: 24px 20px 36px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div id="container">
+    <h1>Sammar Is a odd Guy</h1>
+    <div id="login">
+      <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off" />
+      <button id="joinBtn">Join Game</button>
+    </div>
+
+    <div id="game">
+      <h3>Your Question:</h3>
+      <p id="question"></p>
+
+      <input type="text" id="answerInput" placeholder="Your answer" autocomplete="off" />
+      <button id="submitAnswer">Submit Answer</button>
+
+      <div id="readySection">
+        <button id="readyButton">Ready</button>
+        <p id="readyStatus">Press Ready when you're ready to reveal the question.</p>
+      </div>
+
+      <h3>Players:</h3>
+      <ul id="playerList"></ul>
+
+      <h3>Answers:</h3>
+      <ul id="answers"></ul>
+
+      <h3 id="revealArea"></h3>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const joinBtn = document.getElementById('joinBtn');
+    const nameInput = document.getElementById('nameInput');
+    const loginDiv = document.getElementById('login');
+    const gameDiv = document.getElementById('game');
+    const questionP = document.getElementById('question');
+    const answerInput = document.getElementById('answerInput');
+    const submitAnswerBtn = document.getElementById('submitAnswer');
+    const playerList = document.getElementById('playerList');
+    const answersList = document.getElementById('answers');
+    const readyButton = document.getElementById('readyButton');
+    const readyStatus = document.getElementById('readyStatus');
+    const revealArea = document.getElementById('revealArea');
+
+    joinBtn.onclick = () => {
+      const name = nameInput.value.trim();
+      if (!name) return alert('Enter your name');
+      socket.emit('join', name);
+      loginDiv.style.display = 'none';
+      gameDiv.style.display = 'flex';
+    };
+
+    socket.on('question', (q) => {
+      questionP.textContent = q;
+      revealArea.textContent = '';  // Clear reveal when new question arrives
+      readyButton.disabled = false;
+      readyStatus.textContent = "Press Ready when you're ready to reveal the question.";
+    });
+
+    socket.on('players', (players) => {
+      playerList.innerHTML = '';
+      players.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p;
+        playerList.appendChild(li);
+      });
+    });
+
+    submitAnswerBtn.onclick = () => {
+      const ans = answerInput.value.trim();
+      if (!ans) return alert('Enter your answer');
+      socket.emit('answer', ans);
+      answerInput.value = '';
+    };
+
+    socket.on('answers', (answers) => {
+      answersList.innerHTML = '';
+      answers.forEach(({ name, answer }) => {
+        const li = document.createElement('li');
+        li.textContent = `${name}: ${answer || '(no answer)'}`;
+        answersList.appendChild(li);
+      });
+    });
+
+    readyButton.onclick = () => {
+      socket.emit('ready');
+      readyButton.disabled = true;
+      readyStatus.textContent = "You are ready! Waiting for others...";
+    };
+
+    socket.on('readyStatus', (readyIds) => {
+      readyStatus.textContent = `Players ready: ${readyIds.length}`;
+    });
+
+    socket.on('reveal', (normalQuestion) => {
+      revealArea.textContent = `Normal question was: ${normalQuestion}`;
+      readyStatus.textContent = 'Question revealed! Discuss now.';
+      readyButton.disabled = true;
+    });
+  </script>
+</body>
+</html>
+
