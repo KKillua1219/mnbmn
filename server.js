@@ -1,3 +1,4 @@
+@@ -0,0 +1,131 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -14,7 +15,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Questions for the game (30 normal + imposter variations)
 const QUESTIONS = [
-
+  { question: "Name a fruit", imposter: "Name a vegetable" },
+  { question: "Name a country in Europe", imposter: "Name a country in Asia" },
+  { question: "Name a color", imposter: "Name a shade of gray" },
+  { question: "Name a type of pet", imposter: "Name a wild animal" },
   { "question": "What is your go-to karaoke song?", "impostor": "What song makes you cry?" },
   { "question": "What fictional world would you most like to live in?", "impostor": "What is the scariest movie?" },
   { "question": "What celebrity would you most like to switch lives with?", "impostor": "Who is the most controversial celebrity of all time?" },
@@ -85,8 +89,42 @@ const QUESTIONS = [
   { "question": "What’s your favorite holiday?", "impostor": "Which holiday is wildly overrated?" },
   { "question": "What’s your favorite genre of music?", "impostor": "What genre of music is just noise to you?" },
   { "question": "What’s your favorite takeout meal?", "impostor": "What takeout meal always disappoints?" }
-
-
+[
+  { question: "What's your favorite fruit?", impostor: "What's your favorite vegetable?" },
+  { question: "What's your favorite breakfast food?", impostor: "What's your favorite dinner food?" },
+  { question: "What's your favorite season?", impostor: "What's your favorite holiday?" },
+  { question: "What color do you wear the most?", impostor: "What color do you dislike most?" },
+  { question: "What's your favorite type of music?", impostor: "What's your favorite book genre?" },
+  { question: "What's your favorite fast food restaurant?", impostor: "What's your favorite fancy restaurant?" },
+  { question: "What's your favorite animal?", impostor: "What's your favorite insect?" },
+  { question: "What's your dream vacation destination?", impostor: "Where did you last travel?" },
+  { question: "What movie have you seen the most times?", impostor: "What movie have you never seen but want to?" },
+  { question: "What's your favorite drink?", impostor: "What's your favorite snack?" },
+  { question: "What's your favorite pizza topping?", impostor: "What's your favorite burger topping?" },
+  { question: "What's your favorite sport to watch?", impostor: "What's your favorite sport to play?" },
+  { question: "What was your favorite subject in school?", impostor: "What subject did you dislike in school?" },
+  { question: "What's your favorite ice cream flavor?", impostor: "What's your favorite cake flavor?" },
+  { question: "What's your favorite board game?", impostor: "What's your favorite video game?" },
+  { question: "What's your favorite TV show?", impostor: "What's your favorite movie?" },
+  { question: "What's your favorite clothing brand?", impostor: "What's your favorite tech brand?" },
+  { question: "What's your favorite social media app?", impostor: "What's your favorite messaging app?" },
+  { question: "What's your favorite type of weather?", impostor: "What's your least favorite weather?" },
+  { question: "What's your favorite dessert?", impostor: "What's your favorite appetizer?" },
+  { question: "What's your favorite way to relax?", impostor: "What's your favorite way to exercise?" },
+  { question: "What's your favorite holiday tradition?", impostor: "What's your least favorite holiday chore?" },
+  { question: "What's your favorite breakfast drink?", impostor: "What's your favorite evening drink?" },
+  { question: "What's your favorite type of pet?", impostor: "What's a pet you'd never own?" },
+  { question: "What's your favorite kind of cookie?", impostor: "What's your favorite kind of candy?" },
+  { question: "What's your favorite smell?", impostor: "What's a smell you dislike?" },
+  { question: "What's your favorite restaurant?", impostor: "What's your favorite food truck?" },
+  { question: "What's your favorite time of day?", impostor: "What's your least favorite time of day?" },
+  { question: "What's your favorite city?", impostor: "What's a city you want to visit?" },
+  { question: "What's your favorite type of movie?", impostor: "What's your favorite TV genre?" },
+  { question: "What's your favorite outdoor activity?", impostor: "What's your favorite indoor hobby?" },
+  { question: "What's your favorite sandwich?", impostor: "What's your favorite wrap or burrito?" },
+  { question: "What's your favorite cereal?", impostor: "What's your favorite granola bar?" },
+  { question: "What's your favorite tech gadget?", impostor: "What's your favorite kitchen gadget?" },
+  { question: "What's your favorite emoji?", impostor: "What's an emoji you never use?" }
 ]
 
   
@@ -158,7 +196,7 @@ io.on('connection', (socket) => {
     io.emit('players', Object.values(players).map(p => p.name));
   });
 });
-
+Add commentMore actions
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
