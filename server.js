@@ -107,6 +107,9 @@ function resetGame() {
   currentQuestion = null;
 }
 
+let revealTimeout = null;
+let readyPlayers = new Set();
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -114,50 +117,80 @@ io.on('connection', (socket) => {
     players[socket.id] = { name, answer: null };
     console.log(`${name} joined.`);
 
-    // If first player, pick imposter and question
     if (Object.keys(players).length === 1) {
+      // Pick question and imposter once players exist
       const q = pickQuestion();
       currentQuestion = q;
-      // Pick imposter randomly
-      imposterId = socket.id;
-    } else if (!imposterId) {
-      imposterId = socket.id;
+
+      // Pick random imposter from current players
+      const playerIds = Object.keys(players);
+      imposterId = playerIds[Math.floor(Math.random() * playerIds.length)];
     }
 
-    // Tell the player their question (normal or imposter)
+    // Send each player their question (imposter or normal)
     const question = socket.id === imposterId ? currentQuestion.imposter : currentQuestion.question;
     socket.emit('question', question);
 
-    // Broadcast player list
+    // Broadcast player list and ready status
     io.emit('players', Object.values(players).map(p => p.name));
+    io.emit('readyStatus', Array.from(readyPlayers));
+  });
+
+  socket.on('ready', () => {
+    if (!players[socket.id]) return;
+
+    readyPlayers.add(socket.id);
+    console.log(`${players[socket.id].name} is ready.`);
+
+    // Notify all players who is ready
+    io.emit('readyStatus', Array.from(readyPlayers));
+
+    // Check if all players are ready
+    const allReady = Object.keys(players).length > 0
+      && Object.keys(players).every(id => readyPlayers.has(id));
+
+    if (allReady) {
+      console.log('All players ready! Starting 15-second countdown.');
+
+      if (revealTimeout) clearTimeout(revealTimeout);
+
+      revealTimeout = setTimeout(() => {
+        io.emit('reveal', currentQuestion.question);
+        // Optionally reset ready players for next round
+        readyPlayers.clear();
+        io.emit('readyStatus', Array.from(readyPlayers));
+      }, 15000);
+    }
   });
 
   socket.on('answer', (answer) => {
     if (!players[socket.id]) return;
     players[socket.id].answer = answer;
 
-    // Broadcast answers to everyone (except sender)
     io.emit('answers', Object.entries(players).map(([id, p]) => ({
       id,
       name: p.name,
       answer: p.answer,
     })));
-
-    // Optional: add logic to check if all answered, then reveal imposter
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     delete players[socket.id];
+    readyPlayers.delete(socket.id);
 
-    // Reset if no players
-    if (Object.keys(players).length === 0) resetGame();
+    if (Object.keys(players).length === 0) {
+      resetGame();
+      if (revealTimeout) {
+        clearTimeout(revealTimeout);
+        revealTimeout = null;
+      }
+    }
 
-    // Broadcast updated player list
     io.emit('players', Object.values(players).map(p => p.name));
+    io.emit('readyStatus', Array.from(readyPlayers));
   });
 });
-
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
