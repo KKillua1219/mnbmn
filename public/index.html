@@ -77,6 +77,10 @@
         answersList.appendChild(li);
       });
     });
+    socket.on('reveal', (normalQuestion) => {
+  console.log('Normal question revealed:', normalQuestion);
+  // Show this to all players in the UI
+});
   </script>
 </body>
 </html>
