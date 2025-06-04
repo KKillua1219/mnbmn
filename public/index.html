@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sammar Is a odd Guy</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-  /* Reset and base */
+  /* Reset */
   * {
     box-sizing: border-box;
   }
   body {
     margin: 0;
-    background: #121212;
-    color: #e6e6e6;
-    font-family: 'Poppins', sans-serif;
+    background: #121319;
+    color: #e1e2e5;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     display: flex;
     justify-content: center;
     min-height: 100vh;
@@ -23,120 +24,130 @@
   }
   #container {
     width: 100%;
-    max-width: 480px;
-    background: #181818;
+    max-width: 520px;
+    background: #1e1f28;
     border-radius: 12px;
-    box-shadow: 0 8px 20px rgb(0 0 0 / 0.7);
-    padding: 30px 30px 40px;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.6);
+    padding: 32px 32px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
   }
   h1 {
-    margin: 0 0 24px;
-    font-weight: 600;
-    font-size: 2rem;
+    margin: 0;
+    font-weight: 700;
+    font-size: 2.25rem;
     text-align: center;
-    letter-spacing: 0.06em;
-    color: #1db954; /* Spotify green */
+    letter-spacing: 0.04em;
+    color: #f0f0f5;
   }
 
   /* Login */
   #login {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 18px;
   }
   #nameInput {
     padding: 14px 18px;
-    border-radius: 8px;
-    border: none;
+    border-radius: 10px;
+    border: 1.5px solid #3a3b47;
     font-size: 1rem;
-    background: #282828;
-    color: #fff;
-    transition: background 0.3s ease;
+    background: #2c2e3a;
+    color: #e1e2e5;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
   }
   #nameInput::placeholder {
-    color: #b3b3b3;
+    color: #8c8e9a;
   }
   #nameInput:focus {
     outline: none;
-    background: #333;
+    background: #363946;
+    border-color: #5a5c6e;
   }
   #joinBtn {
-    background: #1db954;
+    background: #4a90e2;
     border: none;
     padding: 14px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.05rem;
     cursor: pointer;
     color: #fff;
-    transition: background 0.3s ease;
-    box-shadow: 0 4px 12px rgb(29 185 84 / 0.5);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 15px rgb(74 144 226 / 0.4);
   }
   #joinBtn:hover {
-    background: #17a74a;
+    background-color: #357abd;
+    box-shadow: 0 8px 20px rgb(53 122 189 / 0.55);
+  }
+  #joinBtn:active {
+    background-color: #2a5a8c;
   }
 
   /* Game */
   #game {
     display: none;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
   }
 
   h3 {
     font-weight: 600;
-    font-size: 1.1rem;
-    border-bottom: 2px solid #282828;
+    font-size: 1.15rem;
+    border-bottom: 2px solid #3a3b47;
     padding-bottom: 6px;
     margin: 0;
-    color: #1db954;
+    color: #c7c9d9;
   }
   #question {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     font-weight: 500;
-    margin: 6px 0 12px;
-    min-height: 48px;
-    color: #fff;
+    margin: 8px 0 16px;
+    min-height: 52px;
+    color: #d9dbdf;
   }
 
   /* Inputs and buttons */
   #answerInput {
     width: 100%;
     padding: 14px 18px;
-    border-radius: 8px;
-    border: none;
-    background: #282828;
-    color: #fff;
+    border-radius: 10px;
+    border: 1.5px solid #3a3b47;
+    background: #2c2e3a;
+    color: #e1e2e5;
     font-size: 1rem;
-    transition: background 0.3s ease;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
   }
   #answerInput::placeholder {
-    color: #b3b3b3;
+    color: #8c8e9a;
   }
   #answerInput:focus {
     outline: none;
-    background: #333;
+    background: #363946;
+    border-color: #5a5c6e;
   }
 
   #submitAnswer {
-    margin-top: 8px;
-    background: #1db954;
+    margin-top: 10px;
+    background: #4a90e2;
     border: none;
     padding: 14px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
     color: #fff;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
-    box-shadow: 0 4px 12px rgb(29 185 84 / 0.5);
+    box-shadow: 0 6px 15px rgb(74 144 226 / 0.4);
   }
   #submitAnswer:hover:not(:disabled) {
-    background: #17a74a;
+    background-color: #357abd;
+    box-shadow: 0 8px 20px rgb(53 122 189 / 0.55);
   }
   #submitAnswer:disabled {
-    background: #444;
+    background-color: #444;
     cursor: default;
     box-shadow: none;
   }
@@ -145,193 +156,4 @@
   #readySection {
     margin-top: 12px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  #readyButton {
-    background: #1db954;
-    border: none;
-    padding: 14px 32px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    color: #fff;
-    transition: background 0.3s ease;
-    box-shadow: 0 4px 12px rgb(29 185 84 / 0.5);
-  }
-  #readyButton:hover:not(:disabled) {
-    background: #17a74a;
-  }
-  #readyButton:disabled {
-    background: #444;
-    cursor: default;
-    box-shadow: none;
-  }
-  #readyStatus {
-    font-size: 0.9rem;
-    color: #b3b3b3;
-    text-align: center;
-  }
-
-  /* Lists */
-  ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    max-height: 160px;
-    overflow-y: auto;
-    border-radius: 8px;
-    background: #282828;
-    box-shadow: inset 0 0 8px rgb(0 0 0 / 0.7);
-  }
-  ul li {
-    padding: 10px 16px;
-    border-bottom: 1px solid #3a3a3a;
-    color: #eee;
-    font-weight: 500;
-    cursor: default;
-  }
-  ul li:last-child {
-    border-bottom: none;
-  }
-
-  /* Reveal area */
-  #revealArea {
-    color: #e50914; /* Netflix red */
-    font-weight: 600;
-    font-size: 1.1rem;
-    min-height: 36px;
-    text-align: center;
-    margin-top: 20px;
-  }
-
-  /* Scrollbar for lists */
-  ul::-webkit-scrollbar {
-    width: 8px;
-  }
-  ul::-webkit-scrollbar-thumb {
-    background: #1db954;
-    border-radius: 4px;
-  }
-  ul::-webkit-scrollbar-track {
-    background: #202020;
-  }
-
-  /* Responsive */
-  @media (max-width: 500px) {
-    #container {
-      padding: 20px 16px 30px;
-    }
-  }
-</style>
-</head>
-<body>
-  <div id="container">
-    <h1>Sammar Is a odd Guy</h1>
-    <div id="login">
-      <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off" />
-      <button id="joinBtn">Join Game</button>
-    </div>
-
-    <div id="game">
-      <h3>Your Question:</h3>
-      <p id="question"></p>
-
-      <input type="text" id="answerInput" placeholder="Your answer" autocomplete="off" />
-      <button id="submitAnswer">Submit Answer</button>
-
-      <div id="readySection">
-        <button id="readyButton">Ready</button>
-        <p id="readyStatus">Press Ready when you're ready to reveal the question.</p>
-      </div>
-
-      <h3>Players:</h3>
-      <ul id="playerList"></ul>
-
-      <h3>Answers:</h3>
-      <ul id="answers"></ul>
-
-      <h3 id="revealArea"></h3>
-    </div>
-  </div>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-
-    const joinBtn = document.getElementById('joinBtn');
-    const nameInput = document.getElementById('nameInput');
-    const loginDiv = document.getElementById('login');
-    const gameDiv = document.getElementById('game');
-    const questionP = document.getElementById('question');
-    const answerInput = document.getElementById('answerInput');
-    const submitAnswerBtn = document.getElementById('submitAnswer');
-    const playerList = document.getElementById('playerList');
-    const answersList = document.getElementById('answers');
-    const readyButton = document.getElementById('readyButton');
-    const readyStatus = document.getElementById('readyStatus');
-    const revealArea = document.getElementById('revealArea');
-
-    joinBtn.onclick = () => {
-      const name = nameInput.value.trim();
-      if (!name) return alert('Enter your name');
-      socket.emit('join', name);
-      loginDiv.style.display = 'none';
-      gameDiv.style.display = 'flex';
-    };
-
-    socket.on('question', (q) => {
-      questionP.textContent = q;
-      revealArea.textContent = '';  // Clear reveal when new question arrives
-      readyButton.disabled = false;
-      readyStatus.textContent = "Press Ready when you're ready to reveal the question.";
-    });
-
-    socket.on('players', (players) => {
-      playerList.innerHTML = '';
-      players.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = p;
-        playerList.appendChild(li);
-      });
-    });
-
-    submitAnswerBtn.onclick = () => {
-      const ans = answerInput.value.trim();
-      if (!ans) return alert('Enter your answer');
-      socket.emit('answer', ans);
-      answerInput.value = '';
-    };
-
-    socket.on('answers', (answers) => {
-      answersList.innerHTML = '';
-      answers.forEach(({ name, answer }) => {
-        const li = document.createElement('li');
-        li.textContent = `${name}: ${answer || '(no answer)'}`;
-        answersList.appendChild(li);
-      });
-    });
-
-    readyButton.onclick = () => {
-      socket.emit('ready');
-      readyButton.disabled = true;
-      readyStatus.textContent = "You are ready! Waiting for others...";
-    };
-
-    socket.on('readyStatus', (readyIds) => {
-      readyStatus.textContent = `Players ready: ${readyIds.length}`;
-    });
-
-    socket.on('reveal', (normalQuestion) => {
-      revealArea.textContent = `Normal question was: ${normalQuestion}`;
-      readyStatus.textContent = 'Question revealed! Discuss now.';
-      readyButton.disabled = true;
-    });
-  </script>
-</body>
-</html>
-
-
-
+    flex-di
