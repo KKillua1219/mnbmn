@@ -19,7 +19,7 @@ const QUESTIONS = [
   { question: "Name a country in Europe", imposter: "Name a country in Asia" },
   { question: "Name a color", imposter: "Name a shade of gray" },
   { question: "Name a type of pet", imposter: "Name a wild animal" },
-[
+
   { question: "What's your favorite fruit?", impostor: "What's your favorite vegetable?" },
   { question: "What's your favorite breakfast food?", impostor: "What's your favorite dinner food?" },
   { question: "What's your favorite season?", impostor: "What's your favorite holiday?" },
@@ -55,10 +55,8 @@ const QUESTIONS = [
   { question: "What's your favorite cereal?", impostor: "What's your favorite granola bar?" },
   { question: "What's your favorite tech gadget?", impostor: "What's your favorite kitchen gadget?" },
   { question: "What's your favorite emoji?", impostor: "What's an emoji you never use?" }
-]
-
-  
 ];
+
 
 // Game state per room (simple demo with 1 room)
 let players = {};
