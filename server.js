@@ -14,12 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Questions for the game (30 normal + imposter variations)
 const QUESTIONS = [
-  { question: "Name a fruit", imposter: "Name a vegetable" },
-  { question: "Name a country in Europe", imposter: "Name a country in Asia" },
-  { question: "Name a color", imposter: "Name a shade of gray" },
-  { question: "Name a type of pet", imposter: "Name a wild animal" },
-[
-[
+
   { "question": "What is your go-to karaoke song?", "impostor": "What song makes you cry?" },
   { "question": "What fictional world would you most like to live in?", "impostor": "What is the scariest movie?" },
   { "question": "What celebrity would you most like to switch lives with?", "impostor": "Who is the most controversial celebrity of all time?" },
@@ -90,7 +85,7 @@ const QUESTIONS = [
   { "question": "What’s your favorite holiday?", "impostor": "Which holiday is wildly overrated?" },
   { "question": "What’s your favorite genre of music?", "impostor": "What genre of music is just noise to you?" },
   { "question": "What’s your favorite takeout meal?", "impostor": "What takeout meal always disappoints?" }
-]
+
 
 ]
 
