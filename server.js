@@ -113,78 +113,60 @@ let readyPlayers = new Set();
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  socket.on('join', ({ name, tvMode }) => {
-    players[socket.id] = { name, answer: null, tvMode: !!tvMode };
-    console.log(`${name} joined. TV Mode: ${tvMode}`);
+  socket.on('join', (name) => {
+    players[socket.id] = { name, answer: null };
+    console.log(`${name} joined.`);
 
-    // If first normal player, pick question & imposter
-    const normalPlayers = Object.entries(players).filter(([, p]) => !p.tvMode);
-    if (normalPlayers.length === 1 && !currentQuestion) {
-      currentQuestion = pickQuestion();
-      const normalPlayerIds = normalPlayers.map(([id]) => id);
-      imposterId = normalPlayerIds[Math.floor(Math.random() * normalPlayerIds.length)];
-      console.log(`Picked question & imposter: ${imposterId}`);
+    if (Object.keys(players).length === 1) {
+      // Pick question and imposter once players exist
+      const q = pickQuestion();
+      currentQuestion = q;
+
+      // Pick random imposter from current players
+      const playerIds = Object.keys(players);
+      imposterId = playerIds[Math.floor(Math.random() * playerIds.length)];
     }
 
-    // Send question ONLY to normal players before reveal
-    if (!players[socket.id].tvMode) {
-      const question = socket.id === imposterId ? currentQuestion.imposter : currentQuestion.question;
-      socket.emit('question', question);
-    }
+    // Send each player their question (imposter or normal)
+    const question = socket.id === imposterId ? currentQuestion.imposter : currentQuestion.question;
+    socket.emit('question', question);
 
-    // Send current answers to everyone (TV mode included)
-    io.emit('answers', Object.entries(players).map(([id, p]) => ({
-      id,
-      name: p.name,
-      answer: p.answer,
-    })));
-
-    // Broadcast player list and ready status to all clients
+    // Broadcast player list and ready status
     io.emit('players', Object.values(players).map(p => p.name));
     io.emit('readyStatus', Array.from(readyPlayers));
   });
 
   socket.on('ready', () => {
-    if (!players[socket.id] || players[socket.id].tvMode) return;
+    if (!players[socket.id]) return;
 
     readyPlayers.add(socket.id);
+    console.log(`${players[socket.id].name} is ready.`);
+
+    // Notify all players who is ready
     io.emit('readyStatus', Array.from(readyPlayers));
 
-    const normalPlayerIds = Object.entries(players)
-      .filter(([, p]) => !p.tvMode)
-      .map(([id]) => id);
-
-    const allReady = normalPlayerIds.length > 0 &&
-      normalPlayerIds.every(id => readyPlayers.has(id));
+    // Check if all players are ready
+    const allReady = Object.keys(players).length > 0
+      && Object.keys(players).every(id => readyPlayers.has(id));
 
     if (allReady) {
-      console.log('All normal players ready! Starting reveal countdown.');
+      console.log('All players ready! Starting 15-second countdown.');
 
       if (revealTimeout) clearTimeout(revealTimeout);
 
       revealTimeout = setTimeout(() => {
-        // Reveal: send normal question to everyone
         io.emit('reveal', currentQuestion.question);
-
-        // Also send all answers to everyone (including TV clients)
-        io.emit('answers', Object.entries(players).map(([id, p]) => ({
-          id,
-          name: p.name,
-          answer: p.answer,
-        })));
-
+        // Optionally reset ready players for next round
         readyPlayers.clear();
         io.emit('readyStatus', Array.from(readyPlayers));
-      }, 15000); // 15 seconds
+      }, 15000);
     }
   });
 
   socket.on('answer', (answer) => {
-    if (!players[socket.id] || players[socket.id].tvMode) return;
-
+    if (!players[socket.id]) return;
     players[socket.id].answer = answer;
 
-    // Broadcast updated answers to all (including TV)
     io.emit('answers', Object.entries(players).map(([id, p]) => ({
       id,
       name: p.name,
@@ -194,20 +176,21 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-
     delete players[socket.id];
     readyPlayers.delete(socket.id);
 
     if (Object.keys(players).length === 0) {
       resetGame();
+      if (revealTimeout) {
+        clearTimeout(revealTimeout);
+        revealTimeout = null;
+      }
     }
 
     io.emit('players', Object.values(players).map(p => p.name));
     io.emit('readyStatus', Array.from(readyPlayers));
-    io.emit('answers', Object.entries(players).map(([id, p]) => ({
-      id,
-      name: p.name,
-      answer: p.answer,
-    })));
   });
+});
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
