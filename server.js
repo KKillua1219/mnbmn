@@ -12,9 +12,9 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Questions for the game (30 normal + imposter variations)
+// Questions for the game (same as you provided)
 const QUESTIONS = [
-   { question: "Name a fruit", imposter: "Name a vegetable" },
+  { question: "Name a fruit", imposter: "Name a vegetable" },
   { question: "Name a country in Europe", imposter: "Name a country in Asia" },
   { question: "Name a color", imposter: "Name a shade of gray" },
   { question: "Name a type of pet", imposter: "Name a wild animal" },
@@ -88,13 +88,15 @@ const QUESTIONS = [
   { question: "What’s your favorite holiday", imposter: "Which holiday is wildly overrated" },
   { question: "What’s your favorite genre of music", imposter: "What genre of music is just noise to you" },
   { question: "What’s your favorite takeout meal", imposter: "What takeout meal always disappoints" }
-  // Add more questions here (30+)
 ];
 
 // Game state per room (simple demo with 1 room)
-let players = {};
+let players = {}; // store: { name, answer, tvMode }
 let imposterId = null;
 let currentQuestion = null;
+
+let revealTimeout = null;
+let readyPlayers = new Set();
 
 function pickQuestion() {
   const index = Math.floor(Math.random() * QUESTIONS.length);
@@ -105,58 +107,72 @@ function resetGame() {
   players = {};
   imposterId = null;
   currentQuestion = null;
+  readyPlayers.clear();
+  if (revealTimeout) {
+    clearTimeout(revealTimeout);
+    revealTimeout = null;
+  }
 }
-
-let revealTimeout = null;
-let readyPlayers = new Set();
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  socket.on('join', (name) => {
-    players[socket.id] = { name, answer: null };
-    console.log(`${name} joined.`);
+  // Expecting an object: { name, tvMode }
+  socket.on('join', ({ name, tvMode }) => {
+    players[socket.id] = { name, answer: null, tvMode: !!tvMode };
+    console.log(`${name} joined. TV Mode: ${tvMode}`);
 
-    if (Object.keys(players).length === 1) {
-      // Pick question and imposter once players exist
-      const q = pickQuestion();
-      currentQuestion = q;
-
-      // Pick random imposter from current players
-      const playerIds = Object.keys(players);
-      imposterId = playerIds[Math.floor(Math.random() * playerIds.length)];
+    // If this is the first normal player (not TV mode), pick question & imposter
+    const normalPlayers = Object.entries(players).filter(([, p]) => !p.tvMode);
+    if (normalPlayers.length === 1 && !currentQuestion) {
+      currentQuestion = pickQuestion();
+      const normalPlayerIds = normalPlayers.map(([id]) => id);
+      imposterId = normalPlayerIds[Math.floor(Math.random() * normalPlayerIds.length)];
+      console.log(`Picked question & imposter: ${imposterId}`);
     }
 
-    // Send each player their question (imposter or normal)
-    const question = socket.id === imposterId ? currentQuestion.imposter : currentQuestion.question;
-    socket.emit('question', question);
+    // Send question ONLY to normal players (not TV)
+    if (!players[socket.id].tvMode) {
+      const question = socket.id === imposterId ? currentQuestion.imposter : currentQuestion.question;
+      socket.emit('question', question);
+    }
 
-    // Broadcast player list and ready status
+    // Broadcast player list and ready status to all clients (including TV mode)
     io.emit('players', Object.values(players).map(p => p.name));
     io.emit('readyStatus', Array.from(readyPlayers));
+
+    // Send answers to all (even if empty)
+    io.emit('answers', Object.entries(players).map(([id, p]) => ({
+      id,
+      name: p.name,
+      answer: p.answer,
+    })));
   });
 
   socket.on('ready', () => {
     if (!players[socket.id]) return;
+    if (players[socket.id].tvMode) return; // TV mode players don't ready
 
     readyPlayers.add(socket.id);
     console.log(`${players[socket.id].name} is ready.`);
 
-    // Notify all players who is ready
     io.emit('readyStatus', Array.from(readyPlayers));
 
-    // Check if all players are ready
-    const allReady = Object.keys(players).length > 0
-      && Object.keys(players).every(id => readyPlayers.has(id));
+    // Check if all normal players are ready
+    const normalPlayerIds = Object.entries(players)
+      .filter(([, p]) => !p.tvMode)
+      .map(([id]) => id);
+
+    const allReady = normalPlayerIds.length > 0
+      && normalPlayerIds.every(id => readyPlayers.has(id));
 
     if (allReady) {
-      console.log('All players ready! Starting 15-second countdown.');
+      console.log('All normal players ready! Starting 15-second countdown.');
 
       if (revealTimeout) clearTimeout(revealTimeout);
 
       revealTimeout = setTimeout(() => {
         io.emit('reveal', currentQuestion.question);
-        // Optionally reset ready players for next round
         readyPlayers.clear();
         io.emit('readyStatus', Array.from(readyPlayers));
       }, 15000);
@@ -165,6 +181,8 @@ io.on('connection', (socket) => {
 
   socket.on('answer', (answer) => {
     if (!players[socket.id]) return;
+    if (players[socket.id].tvMode) return; // TV mode players don't answer
+
     players[socket.id].answer = answer;
 
     io.emit('answers', Object.entries(players).map(([id, p]) => ({
@@ -176,22 +194,28 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+
+    // Remove player and ready status
     delete players[socket.id];
     readyPlayers.delete(socket.id);
 
+    // If no players, reset game state
     if (Object.keys(players).length === 0) {
       resetGame();
-      if (revealTimeout) {
-        clearTimeout(revealTimeout);
-        revealTimeout = null;
-      }
     }
 
     io.emit('players', Object.values(players).map(p => p.name));
     io.emit('readyStatus', Array.from(readyPlayers));
+    io.emit('answers', Object.entries(players).map(([id, p]) => ({
+      id,
+      name: p.name,
+      answer: p.answer,
+    })));
   });
 });
+
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
 
